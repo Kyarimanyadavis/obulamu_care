@@ -1,0 +1,82 @@
+{
+  "project_info": {
+    "project_number": "526209346408",
+    "project_id": "obulamu-3c320",
+    "storage_bucket": "obulamu-3c320.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:526209346408:android:0e3c6a9c6789bd74a684dd",
+        "android_client_info": {
+          "package_name": "com.example.obulamu"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "526209346408-vc9sglv8jnu5s3476qgpeahiqqndjmvu.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCWlRVHAsoyLQYXVxff7KliZlDlGRSODik"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "526209346408-vc9sglv8jnu5s3476qgpeahiqqndjmvu.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "526209346408-klaf8vjqntb7msjkol2bgs7si9i81ni1.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.obulamu"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:526209346408:android:3e6e6e5faed386c3a684dd",
+        "android_client_info": {
+          "package_name": "com.example.obulamucare"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "526209346408-vc9sglv8jnu5s3476qgpeahiqqndjmvu.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCWlRVHAsoyLQYXVxff7KliZlDlGRSODik"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "526209346408-vc9sglv8jnu5s3476qgpeahiqqndjmvu.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "526209346408-klaf8vjqntb7msjkol2bgs7si9i81ni1.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.obulamu"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
