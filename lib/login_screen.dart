@@ -25,57 +25,75 @@ class _LoginScreenState extends State<LoginScreen> {
       setState(() {
         _isSubmitting = true;
       });
-      // signin with email and password firebaseAuth below
-      final userCredential = await FirebaseAuth.instance
-          .signInWithEmailAndPassword(
-            email: _emailController.text.trim(),
-            password: _passwordController.text.trim(),
+      try {
+        // signin with email and password firebaseAuth below
+        final userCredential = await FirebaseAuth.instance
+            .signInWithEmailAndPassword(
+              email: _emailController.text.trim(),
+              password: _passwordController.text.trim(),
+            );
+        // Check if the user is signed in
+        if (userCredential.user == null) {
+          setState(() {
+            _isSubmitting = false;
+          });
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Login failed. Please try again.')),
           );
-      // Check if the user is signed in
-      if (userCredential.user == null) {
+          return;
+        }
+
+        setState(() {
+          _isSubmitting = false;
+        });
+
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+
+        await prefs.setString('userEmail', userCredential.user?.email ?? '');
+        await prefs.setString('userId', userCredential.user?.uid ?? '');
+        await prefs.setBool('isLoggedIn', true);
+
+        // Navigate to the next screen or show success message
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'Login successful! Welcome ${userCredential.user?.email}',
+            ),
+          ),
+        );
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (context) => const Dashboard()),
+          (route) => false,
+        );
+      } on FirebaseAuthException catch (e) {
+        setState(() {
+          _isSubmitting = false;
+        });
+        String errorMessage = 'Login failed. Please try again.';
+        if (e.code == 'user-not-found') {
+          errorMessage = 'No user found for that email.';
+        } else if (e.code == 'wrong-password') {
+          errorMessage = 'Wrong password provided.';
+        }
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(errorMessage)),
+        );
+      } catch (e) {
         setState(() {
           _isSubmitting = false;
         });
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Login failed. Please try again.')),
+          const SnackBar(content: Text('An unexpected error occurred.')),
         );
-
-        return;
       }
-
-      setState(() {
-        _isSubmitting = false;
-      });
-
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-
-      await prefs.setString('userEmail', userCredential.user?.email ?? '');
-      await prefs.setString('userId', userCredential.user?.uid ?? '');
-      await prefs.setBool('isLoggedIn', true);
-
-      // Navigate to the next screen or show success message
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            'Login successful! Welcome ${userCredential.user?.email}',
-          ),
-        ),
-      );
-      Navigator.pushAndRemoveUntil(
-        context,
-        MaterialPageRoute(builder: (context) => const Dashboard()),
-        (route) => false,
-      );
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.blue,
-        title: const Text("Login Screen"),
-      ),
+    
 
       body: SingleChildScrollView(
         child: Padding(
@@ -165,7 +183,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                 ),
                 const SizedBox(height: 20),
-              ],
+                              ],
             ),
           ),
         ),
