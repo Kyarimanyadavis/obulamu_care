@@ -11,7 +11,7 @@ plugins {
 android {
     namespace = "com.example.obulamucare"
     compileSdk = 35
-    ndkVersion = "29.0.13113456"
+    ndkVersion = "29.0.13599879"
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
