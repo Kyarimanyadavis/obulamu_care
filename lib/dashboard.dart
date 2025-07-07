@@ -178,7 +178,46 @@ class _DashboardState extends State<Dashboard> {
           ),
         ],
       ),
-    );
+      bottomNavigationBar: Container(
+        decoration: const BoxDecoration(
+          color: Color.fromARGB(221, 96, 22, 167),
+          borderRadius: BorderRadius.only(
+        topLeft: Radius.circular(18),
+        topRight: Radius.circular(18),
+          ),
+          boxShadow: [
+        BoxShadow(
+          color: Colors.black26,
+          blurRadius: 8,
+          offset: Offset(0, -2),
+        ),
+          ],
+        ),
+        child: BottomNavigationBar(
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          items: const [
+        BottomNavigationBarItem(
+          icon: Icon(Icons.home, color: Colors.white),
+          label: 'Home',
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.settings, color: Colors.white),
+          label: 'Settings',
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.person, color: Colors.white),
+          label: 'Profile',
+          
+        ),
+        
+          ],
+          selectedItemColor: Colors.white,
+          unselectedItemColor: Colors.white70,
+        ),
+      ),
+      );
+    
   }
 
   Widget _buildDashboardGridItem({
@@ -214,3 +253,4 @@ class _DashboardState extends State<Dashboard> {
     );
   }
 }
+
