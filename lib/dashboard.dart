@@ -2,6 +2,9 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:obulamucare/add_baby.dart';
+import 'package:obulamucare/appointments_screen.dart';
+import 'package:obulamucare/doctors_screen.dart';
+import 'package:obulamucare/immunization_screen.dart';
 
 class Dashboard extends StatefulWidget {
   const Dashboard({super.key});
@@ -151,23 +154,50 @@ class _DashboardState extends State<Dashboard> {
                       children: [
                         _buildDashboardGridItem(
                           icon: FontAwesomeIcons.userDoctor,
-                          label: "Doctors",
+                            label: "Doctors",
+                            onTap: () {
+                             Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const DoctorsScreen(),
+                          ),
+                        );
+                            },
                           color: Colors.deepPurple,
                         ),
                         _buildDashboardGridItem(
                           icon: FontAwesomeIcons.syringe,
                           label: "Immunizations",
                           color: Colors.teal,
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const ImmunizationScreen(),
+                              ),
+                            );
+                          },
                         ),
                         _buildDashboardGridItem(
                           icon: FontAwesomeIcons.calendarCheck,
                           label: "Appointments",
                           color: Colors.orange,
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const AppointmentsScreen(),
+                              ),
+                            );
+                          },
                         ),
                         _buildDashboardGridItem(
                           icon: FontAwesomeIcons.notesMedical,
                           label: "Records",
                           color: Colors.pink,
+                          onTap: () {
+                            
+                          },
                         ),
                       ],
                     ),
@@ -208,31 +238,25 @@ class _DashboardState extends State<Dashboard> {
         BottomNavigationBarItem(
           icon: Icon(Icons.person, color: Colors.white),
           label: 'Profile',
-          
         ),
-        
-          ],
-          selectedItemColor: Colors.white,
-          unselectedItemColor: Colors.white70,
-        ),
-      ),
-      );
-    
+      ],
+    ),
+  ),
+);
   }
 
   Widget _buildDashboardGridItem({
     required IconData icon,
     required String label,
     required Color color,
+    required VoidCallback onTap,
   }) {
     return Card(
       color: color.withOpacity(0.9),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: InkWell(
         borderRadius: BorderRadius.circular(12),
-        onTap: () {
-          // Handle tap
-        },
+        onTap: onTap,
         child: Center(
           child: Column(
             mainAxisSize: MainAxisSize.min,
