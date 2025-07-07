@@ -46,7 +46,7 @@ class _DatePickerWidgetState extends State<_DatePickerWidget> {
 }
 
 class _BabyScreenState extends State<BabyScreen> {
-  DateTime? _birthDate;
+  var _birthDate;
   Map<DateTime, String>? _vaccineSchedule;
 
   Map<DateTime, String> _generateVaccineSchedule(DateTime birthDate) {
@@ -160,8 +160,11 @@ class _BabyScreenState extends State<BabyScreen> {
                     }
 
                     final babyData = {
-                      'birthDate': _birthDate,
-                      'vaccineSchedule': _vaccineSchedule,
+                      'birthDate': Timestamp.fromDate(_birthDate),
+                      'vaccineSchedule': _vaccineSchedule!.map(
+                        (date, vaccine) =>
+                            MapEntry(date.toIso8601String(), vaccine),
+                      ),
                     };
 
                     try {

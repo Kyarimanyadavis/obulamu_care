@@ -196,7 +196,12 @@ class _DashboardState extends State<Dashboard> {
                           label: "Records",
                           color: Colors.pink,
                           onTap: () {
-                            
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const BabyScreen(),
+                              ),
+                            );
                           },
                         ),
                       ],
