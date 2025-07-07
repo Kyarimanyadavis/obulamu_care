@@ -2,6 +2,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:obulamucare/add_baby.dart';
+import 'package:obulamucare/baby_list_screen.dart'; // Make sure this import points to the file where BabyListScreen is defined
 
 class Dashboard extends StatefulWidget {
   const Dashboard({super.key});
@@ -168,6 +169,14 @@ class _DashboardState extends State<Dashboard> {
                           icon: FontAwesomeIcons.notesMedical,
                           label: "Records",
                           color: Colors.pink,
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => const BabyListScreen(),
+                              ),
+                            );
+                          },
                         ),
                       ],
                     ),
@@ -182,57 +191,53 @@ class _DashboardState extends State<Dashboard> {
         decoration: const BoxDecoration(
           color: Color.fromARGB(221, 96, 22, 167),
           borderRadius: BorderRadius.only(
-        topLeft: Radius.circular(18),
-        topRight: Radius.circular(18),
+            topLeft: Radius.circular(18),
+            topRight: Radius.circular(18),
           ),
           boxShadow: [
-        BoxShadow(
-          color: Colors.black26,
-          blurRadius: 8,
-          offset: Offset(0, -2),
-        ),
+            BoxShadow(
+              color: Colors.black26,
+              blurRadius: 8,
+              offset: Offset(0, -2),
+            ),
           ],
         ),
         child: BottomNavigationBar(
           backgroundColor: Colors.transparent,
           elevation: 0,
           items: const [
-        BottomNavigationBarItem(
-          icon: Icon(Icons.home, color: Colors.white),
-          label: 'Home',
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.settings, color: Colors.white),
-          label: 'Settings',
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.person, color: Colors.white),
-          label: 'Profile',
-          
-        ),
-        
+            BottomNavigationBarItem(
+              icon: Icon(Icons.home, color: Colors.white),
+              label: 'Home',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.settings, color: Colors.white),
+              label: 'Settings',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.person, color: Colors.white),
+              label: 'Profile',
+            ),
           ],
           selectedItemColor: Colors.white,
           unselectedItemColor: Colors.white70,
         ),
       ),
-      );
-    
+    );
   }
 
   Widget _buildDashboardGridItem({
     required IconData icon,
     required String label,
     required Color color,
+    VoidCallback? onTap, // ← add this
   }) {
     return Card(
       color: color.withOpacity(0.9),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: InkWell(
         borderRadius: BorderRadius.circular(12),
-        onTap: () {
-          // Handle tap
-        },
+        onTap: onTap, // ← use it here
         child: Center(
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -253,4 +258,3 @@ class _DashboardState extends State<Dashboard> {
     );
   }
 }
-
