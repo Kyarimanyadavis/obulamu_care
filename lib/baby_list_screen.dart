@@ -89,7 +89,7 @@ class BabyListScreen extends StatelessWidget {
                   );
 
                   return Card(
-                    color: Colors.white10.withOpacity(0.2),
+                    color: Colors.white10.withAlpha((0.2 * 255).toInt()),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),

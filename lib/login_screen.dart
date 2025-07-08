@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:obulamucare/dashboard.dart';
 import 'package:obulamucare/register_screen.dart'; // <-- make sure this exists
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:google_sign_in/google_sign_in.dart'; // NEW: Import google_sign_in
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -18,6 +19,89 @@ class _LoginScreenState extends State<LoginScreen> {
   final _passwordController = TextEditingController();
 
   bool _isSubmitting = false;
+
+  // NEW: Initialize GoogleSignIn instance
+  final GoogleSignIn _googleSignIn = GoogleSignIn();
+
+  Future<void> signInWithGoogle() async {
+    setState(() {
+      _isSubmitting = true;
+    });
+    try {
+      // 1. Trigger the Google Sign-In flow
+      final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
+
+      if (googleUser == null) {
+        // The user canceled the sign-in process
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Google Sign-In cancelled.')),
+        );
+        return; // Exit if user cancelled
+      }
+
+      // 2. Obtain the authentication details from the Google request
+      final GoogleSignInAuthentication googleAuth =
+          await googleUser.authentication;
+
+      // 3. Create a new Firebase credential with the Google ID token and access token
+      final AuthCredential credential = GoogleAuthProvider.credential(
+        accessToken: googleAuth.accessToken,
+        idToken: googleAuth.idToken,
+      );
+
+      // 4. Sign in to Firebase with the Google credential
+      final UserCredential userCredential = await FirebaseAuth.instance
+          .signInWithCredential(credential);
+      final User? user = userCredential.user;
+
+      if (user != null) {
+        // Sign-in successful with Google!
+        // Save user data to SharedPreferences, similar to email/password login
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        await prefs.setString('userEmail', user.email ?? '');
+        await prefs.setString('userId', user.uid);
+        await prefs.setBool('isLoggedIn', true);
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'Login successful with Google! Welcome ${user.displayName ?? user.email}',
+            ),
+          ),
+        );
+
+        // Navigate to Dashboard and remove all previous routes
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (context) => const Dashboard()),
+          (route) => false,
+        );
+      }
+    } on FirebaseAuthException catch (e) {
+      // Handle Firebase specific errors
+      String errorMessage = 'Google sign-in failed: ${e.message}';
+      if (e.code == 'account-exists-with-different-credential') {
+        errorMessage =
+            'An account already exists with the same email address but different sign-in credentials.';
+      }
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(errorMessage)));
+      print("FirebaseAuthException during Google Sign-In: $e"); // For debugging
+    } catch (e) {
+      // Handle any other unexpected errors
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('An unexpected error occurred during Google sign-in.'),
+        ),
+      );
+      print("General error during Google Sign-In: $e"); // For debugging
+    } finally {
+      setState(() {
+        _isSubmitting = false;
+      });
+    }
+  }
 
   Future<void> _signIn() async {
     if (_formKey.currentState?.validate() ?? false) {
@@ -211,7 +295,10 @@ class _LoginScreenState extends State<LoginScreen> {
 
                     // Login button
                     ElevatedButton(
-                      onPressed: _signIn,
+                      onPressed:
+                          _isSubmitting
+                              ? null
+                              : _signIn, // Disable button while submitting
                       style: ElevatedButton.styleFrom(
                         minimumSize: const Size(double.infinity, 50),
                         backgroundColor: Colors.blueAccent,
@@ -238,6 +325,32 @@ class _LoginScreenState extends State<LoginScreen> {
                               )
                               : const Icon(Icons.login, color: Colors.white),
                         ],
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    // Google Sign In button
+                    ElevatedButton.icon(
+                      icon: Image.asset(
+                        'assets/images/google.jpeg',
+                        height: 24,
+                      ), // Place a Google logo in assets!
+                      label: const Text('Sign in with Google'),
+                      onPressed:
+                          _isSubmitting
+                              ? null
+                              : signInWithGoogle, // Disable button while submitting
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.white,
+                        foregroundColor: Colors.black,
+                        minimumSize: const Size(
+                          double.infinity,
+                          50,
+                        ), // Make it full width
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(
+                            30,
+                          ), // Match other button's border radius
+                        ),
                       ),
                     ),
 

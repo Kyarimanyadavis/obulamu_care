@@ -2,7 +2,11 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:obulamucare/add_baby.dart';
-import 'package:obulamucare/baby_list_screen.dart'; // Make sure this import points to the file where BabyListScreen is defined
+import 'package:obulamucare/appointments_screen.dart';
+import 'package:obulamucare/doctors_screen.dart';
+import 'package:obulamucare/immunization_screen.dart';
+import 'package:obulamucare/settings.dart';
+import 'package:obulamucare/baby_list_screen.dart';
 
 class Dashboard extends StatefulWidget {
   const Dashboard({super.key});
@@ -153,17 +157,43 @@ class _DashboardState extends State<Dashboard> {
                         _buildDashboardGridItem(
                           icon: FontAwesomeIcons.userDoctor,
                           label: "Doctors",
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const DoctorsScreen(),
+                              ),
+                            );
+                          },
                           color: Colors.deepPurple,
                         ),
                         _buildDashboardGridItem(
                           icon: FontAwesomeIcons.syringe,
                           label: "Immunizations",
                           color: Colors.teal,
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder:
+                                    (context) => const ImmunizationScreen(),
+                              ),
+                            );
+                          },
                         ),
                         _buildDashboardGridItem(
                           icon: FontAwesomeIcons.calendarCheck,
                           label: "Appointments",
                           color: Colors.orange,
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder:
+                                    (context) => const AppointmentsScreen(),
+                              ),
+                            );
+                          },
                         ),
                         _buildDashboardGridItem(
                           icon: FontAwesomeIcons.notesMedical,
@@ -173,7 +203,7 @@ class _DashboardState extends State<Dashboard> {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (_) => const BabyListScreen(),
+                                builder: (context) => const BabyListScreen(),
                               ),
                             );
                           },
@@ -205,13 +235,23 @@ class _DashboardState extends State<Dashboard> {
         child: BottomNavigationBar(
           backgroundColor: Colors.transparent,
           elevation: 0,
-          items: const [
+          items: [
             BottomNavigationBarItem(
               icon: Icon(Icons.home, color: Colors.white),
               label: 'Home',
             ),
             BottomNavigationBarItem(
-              icon: Icon(Icons.settings, color: Colors.white),
+              icon: GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const SettingsPage(),
+                    ),
+                  );
+                },
+                child: Icon(Icons.settings, color: Colors.white),
+              ),
               label: 'Settings',
             ),
             BottomNavigationBarItem(
@@ -219,8 +259,6 @@ class _DashboardState extends State<Dashboard> {
               label: 'Profile',
             ),
           ],
-          selectedItemColor: Colors.white,
-          unselectedItemColor: Colors.white70,
         ),
       ),
     );
@@ -230,14 +268,14 @@ class _DashboardState extends State<Dashboard> {
     required IconData icon,
     required String label,
     required Color color,
-    VoidCallback? onTap, // ← add this
+    required VoidCallback onTap,
   }) {
     return Card(
       color: color.withOpacity(0.9),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: InkWell(
         borderRadius: BorderRadius.circular(12),
-        onTap: onTap, // ← use it here
+        onTap: onTap,
         child: Center(
           child: Column(
             mainAxisSize: MainAxisSize.min,

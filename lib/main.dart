@@ -4,14 +4,11 @@ import 'package:obulamucare/firebase_options.dart';
 import 'package:obulamucare/login_screen.dart';
 import 'package:obulamucare/splash.dart';
 
-
 // Add other screens as needed
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform
-  );
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   runApp(const MyApp());
 }
 
