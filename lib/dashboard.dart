@@ -5,6 +5,7 @@ import 'package:obulamucare/add_baby.dart';
 import 'package:obulamucare/appointments_screen.dart';
 import 'package:obulamucare/doctors_screen.dart';
 import 'package:obulamucare/immunization_screen.dart';
+import 'package:obulamucare/settings.dart';
 
 class Dashboard extends StatefulWidget {
   const Dashboard({super.key});
@@ -231,13 +232,21 @@ class _DashboardState extends State<Dashboard> {
         child: BottomNavigationBar(
           backgroundColor: Colors.transparent,
           elevation: 0,
-          items: const [
+          items: [
         BottomNavigationBarItem(
           icon: Icon(Icons.home, color: Colors.white),
           label: 'Home',
         ),
         BottomNavigationBarItem(
-          icon: Icon(Icons.settings, color: Colors.white),
+          icon: GestureDetector(
+            onTap: () {
+              Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const SettingsPage()),
+              );
+            },
+            child: Icon(Icons.settings, color: Colors.white),
+          ),
           label: 'Settings',
         ),
         BottomNavigationBarItem(
