@@ -2,11 +2,13 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart'; // Add intl: ^latest_version to your pubspec.yaml
 
-// Import your Appointment model
+// Import your Appointment model and service
 import 'package:obulamucare/appointments_screen.dart'; // Make sure this path is correct
+import 'package:obulamucare/services/appointment_service.dart';
 
 class AppointmentFormScreen extends StatefulWidget {
-  final Appointment? appointment; // Optional: for editing an existing appointment
+  final Appointment?
+  appointment; // Optional: for editing an existing appointment
 
   const AppointmentFormScreen({super.key, this.appointment});
 
@@ -33,10 +35,18 @@ class _AppointmentFormScreenState extends State<AppointmentFormScreen> {
   @override
   void initState() {
     super.initState();
-    _childNameController = TextEditingController(text: widget.appointment?.childName);
-    _vaccinePurposeController = TextEditingController(text: widget.appointment?.vaccineOrPurpose);
-    _locationController = TextEditingController(text: widget.appointment?.location);
-    _doctorNameController = TextEditingController(text: widget.appointment?.doctorName);
+    _childNameController = TextEditingController(
+      text: widget.appointment?.childName,
+    );
+    _vaccinePurposeController = TextEditingController(
+      text: widget.appointment?.vaccineOrPurpose,
+    );
+    _locationController = TextEditingController(
+      text: widget.appointment?.location,
+    );
+    _doctorNameController = TextEditingController(
+      text: widget.appointment?.doctorName,
+    );
 
     if (widget.appointment != null) {
       _selectedDate = widget.appointment!.dateTime;
@@ -46,7 +56,10 @@ class _AppointmentFormScreenState extends State<AppointmentFormScreen> {
 
     // Initialize controllers with empty text for now, context-dependent parts handled in didChangeDependencies
     _dateController = TextEditingController(
-      text: _selectedDate == null ? '' : DateFormat('yyyy-MM-dd').format(_selectedDate!),
+      text:
+          _selectedDate == null
+              ? ''
+              : DateFormat('yyyy-MM-dd').format(_selectedDate!),
     );
     _timeController = TextEditingController(text: ''); // Initialize as empty
   }
@@ -57,12 +70,13 @@ class _AppointmentFormScreenState extends State<AppointmentFormScreen> {
     // Only run this part once for initial setup
     if (!_isInitialSetupDone) {
       if (_selectedTime != null) {
-        _timeController.text = _selectedTime!.format(context); // Now context is safe to use
+        _timeController.text = _selectedTime!.format(
+          context,
+        ); // Now context is safe to use
       }
       _isInitialSetupDone = true;
     }
   }
-
 
   @override
   void dispose() {
@@ -103,7 +117,7 @@ class _AppointmentFormScreenState extends State<AppointmentFormScreen> {
     }
   }
 
-  void _saveAppointment() {
+  Future<void> _saveAppointment() async {
     if (_formKey.currentState!.validate()) {
       if (_selectedDate == null || _selectedTime == null) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -112,25 +126,81 @@ class _AppointmentFormScreenState extends State<AppointmentFormScreen> {
         return;
       }
 
-      final DateTime combinedDateTime = DateTime(
-        _selectedDate!.year,
-        _selectedDate!.month,
-        _selectedDate!.day,
-        _selectedTime!.hour,
-        _selectedTime!.minute,
+      // Show loading indicator
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext context) {
+          return const Center(child: CircularProgressIndicator());
+        },
       );
 
-      final newOrUpdatedAppointment = Appointment(
-        id: widget.appointment?.id ?? DateTime.now().millisecondsSinceEpoch.toString(), // Unique ID
-        childName: _childNameController.text.trim(),
-        vaccineOrPurpose: _vaccinePurposeController.text.trim(),
-        dateTime: combinedDateTime,
-        status: _selectedStatus,
-        location: _locationController.text.trim().isNotEmpty ? _locationController.text.trim() : null,
-        doctorName: _doctorNameController.text.trim().isNotEmpty ? _doctorNameController.text.trim() : null,
-      );
+      try {
+        final DateTime combinedDateTime = DateTime(
+          _selectedDate!.year,
+          _selectedDate!.month,
+          _selectedDate!.day,
+          _selectedTime!.hour,
+          _selectedTime!.minute,
+        );
 
-      Navigator.pop(context, newOrUpdatedAppointment); // Pass the new/updated appointment back
+        final newOrUpdatedAppointment = Appointment(
+          id:
+              widget.appointment?.id ??
+              '', // Will be set by Firestore for new appointments
+          childName: _childNameController.text.trim(),
+          vaccineOrPurpose: _vaccinePurposeController.text.trim(),
+          dateTime: combinedDateTime,
+          status: _selectedStatus,
+          location:
+              _locationController.text.trim().isNotEmpty
+                  ? _locationController.text.trim()
+                  : null,
+          doctorName:
+              _doctorNameController.text.trim().isNotEmpty
+                  ? _doctorNameController.text.trim()
+                  : null,
+          createdAt: widget.appointment?.createdAt ?? DateTime.now(),
+          updatedAt: DateTime.now(),
+        );
+
+        if (widget.appointment == null) {
+          // Adding new appointment
+          await AppointmentService.addAppointment(newOrUpdatedAppointment);
+          if (mounted) {
+            Navigator.pop(context); // Close loading dialog
+            Navigator.pop(
+              context,
+              true,
+            ); // Return to previous screen with success flag
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Appointment added successfully!')),
+            );
+          }
+        } else {
+          // Updating existing appointment
+          await AppointmentService.updateAppointment(newOrUpdatedAppointment);
+          if (mounted) {
+            Navigator.pop(context); // Close loading dialog
+            Navigator.pop(
+              context,
+              true,
+            ); // Return to previous screen with success flag
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Appointment updated successfully!'),
+              ),
+            );
+          }
+        }
+      } catch (e) {
+        if (mounted) {
+          Navigator.pop(context); // Close loading dialog
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Error saving appointment: $e')),
+          );
+        }
+      }
     }
   }
 
@@ -139,7 +209,9 @@ class _AppointmentFormScreenState extends State<AppointmentFormScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          widget.appointment == null ? 'Schedule New Appointment' : 'Edit Appointment',
+          widget.appointment == null
+              ? 'Schedule New Appointment'
+              : 'Edit Appointment',
           style: const TextStyle(color: Colors.white),
         ),
         backgroundColor: const Color.fromARGB(221, 96, 22, 167),
@@ -243,13 +315,18 @@ class _AppointmentFormScreenState extends State<AppointmentFormScreen> {
                     border: OutlineInputBorder(),
                     prefixIcon: Icon(Icons.info),
                   ),
-                  items: <String>['Upcoming', 'Completed', 'Missed', 'Canceled']
-                      .map<DropdownMenuItem<String>>((String value) {
-                    return DropdownMenuItem<String>(
-                      value: value,
-                      child: Text(value),
-                    );
-                  }).toList(),
+                  items:
+                      <String>[
+                        'Upcoming',
+                        'Completed',
+                        'Missed',
+                        'Canceled',
+                      ].map<DropdownMenuItem<String>>((String value) {
+                        return DropdownMenuItem<String>(
+                          value: value,
+                          child: Text(value),
+                        );
+                      }).toList(),
                   onChanged: (String? newValue) {
                     setState(() {
                       _selectedStatus = newValue!;
@@ -261,7 +338,11 @@ class _AppointmentFormScreenState extends State<AppointmentFormScreen> {
               ElevatedButton.icon(
                 onPressed: _saveAppointment,
                 icon: const Icon(Icons.save),
-                label: Text(widget.appointment == null ? 'Save Appointment' : 'Update Appointment'),
+                label: Text(
+                  widget.appointment == null
+                      ? 'Save Appointment'
+                      : 'Update Appointment',
+                ),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.deepPurple,
                   foregroundColor: Colors.white,

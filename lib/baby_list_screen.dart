@@ -2,6 +2,11 @@ import 'dart:ui';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:printing/printing.dart';
+import 'package:pdf/pdf.dart';
+import 'package:pdf/widgets.dart' as pw;
+
+import 'edit_baby_screen.dart';
 
 class BabyListScreen extends StatelessWidget {
   const BabyListScreen({super.key});
@@ -77,7 +82,6 @@ class BabyListScreen extends StatelessWidget {
                   final vaccineScheduleMap = Map<String, dynamic>.from(
                     data['vaccineSchedule'],
                   );
-
                   final vaccineSchedule = vaccineScheduleMap.map(
                     (key, value) => MapEntry(DateTime.parse(key), value),
                   );
@@ -104,9 +108,9 @@ class BabyListScreen extends StatelessWidget {
                       title: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text(
-                            "Baby Record",
-                            style: TextStyle(
+                          Text(
+                            data['babyName'] ?? 'Unnamed Baby',
+                            style: const TextStyle(
                               color: Colors.white,
                               fontSize: 18,
                               fontWeight: FontWeight.bold,
@@ -114,18 +118,62 @@ class BabyListScreen extends StatelessWidget {
                           ),
                           const SizedBox(height: 8),
                           Text(
+                            "Gender: ${data['gender']}",
+                            style: const TextStyle(color: Colors.white70),
+                          ),
+                          Text(
+                            "Mother: ${data['motherName']}",
+                            style: const TextStyle(color: Colors.white70),
+                          ),
+                          Text(
+                            "Father: ${data['fatherName']}",
+                            style: const TextStyle(color: Colors.white70),
+                          ),
+                          Text(
                             "Birth Date: $formattedBirthDate",
                             style: const TextStyle(color: Colors.white70),
                           ),
-                          const SizedBox(height: 4),
                           Text(
                             "1st Vaccine: $firstVaccineName",
                             style: const TextStyle(color: Colors.white70),
                           ),
-                          const SizedBox(height: 4),
                           Text(
                             "Due Date: $formattedVaccineDate",
                             style: const TextStyle(color: Colors.white70),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            "Location: ${data['district']}, ${data['county']}, ${data['subcounty']}, ${data['parish']}, ${data['village']}",
+                            style: const TextStyle(
+                              color: Colors.white60,
+                              fontSize: 13,
+                            ),
+                          ),
+                        ],
+                      ),
+                      trailing: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          IconButton(
+                            icon: const Icon(Icons.edit, color: Colors.white),
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder:
+                                      (_) => EditBabyScreen(
+                                        documentId: doc.id,
+                                        existingData: data,
+                                      ),
+                                ),
+                              );
+                            },
+                          ),
+                          IconButton(
+                            icon: const Icon(Icons.print, color: Colors.white),
+                            onPressed: () {
+                              generateAndPrintReport(data);
+                            },
                           ),
                         ],
                       ),
@@ -137,6 +185,55 @@ class BabyListScreen extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+
+  void generateAndPrintReport(Map<String, dynamic> babyData) async {
+    final pdf = pw.Document();
+    final birthDate = (babyData['birthDate'] as Timestamp).toDate();
+    final vaccineSchedule = Map<String, dynamic>.from(
+      babyData['vaccineSchedule'],
+    );
+
+    pdf.addPage(
+      pw.Page(
+        build: (pw.Context context) {
+          return pw.Column(
+            crossAxisAlignment: pw.CrossAxisAlignment.start,
+            children: [
+              pw.Text(
+                "Baby Vaccination Report",
+                style: pw.TextStyle(fontSize: 24),
+              ),
+              pw.SizedBox(height: 20),
+              pw.Text("Name: ${babyData['babyName']}"),
+              pw.Text("Gender: ${babyData['gender']}"),
+              pw.Text("Mother: ${babyData['motherName']}"),
+              pw.Text("Father: ${babyData['fatherName']}"),
+              pw.Text("Birth Date: ${DateFormat.yMMMMd().format(birthDate)}"),
+              pw.SizedBox(height: 10),
+              pw.Text("Location:"),
+              pw.Text("  District: ${babyData['district']}"),
+              pw.Text("  County: ${babyData['county']}"),
+              pw.Text("  Subcounty: ${babyData['subcounty']}"),
+              pw.Text("  Parish: ${babyData['parish']}"),
+              pw.Text("  Village: ${babyData['village']}"),
+              pw.SizedBox(height: 10),
+              pw.Text("Vaccine Schedule:"),
+              ...vaccineSchedule.entries.map((entry) {
+                final date = DateFormat.yMMMMd().format(
+                  DateTime.parse(entry.key),
+                );
+                return pw.Text("  $date: ${entry.value}");
+              }),
+            ],
+          );
+        },
+      ),
+    );
+
+    await Printing.layoutPdf(
+      onLayout: (PdfPageFormat format) async => pdf.save(),
     );
   }
 }

@@ -47,6 +47,12 @@ dependencies:
   google_sign_in: ^6.2.1
   cached_network_image: ^3.4.1
   intl: ^0.20.2
+  pdf: ^3.11.3
+  printing: ^5.14.2
+  akwap: ^0.0.2
+  equatable: ^2.0.5
+  fuzzywuzzy: ^1.1.6
+  
   
 
 
@@ -85,6 +91,7 @@ flutter:
   assets:
     - assets/images/
     - assets/
+    - assets/districts.json  
   
 
   # An image asset can refer to one or more resolution-specific "variants", see

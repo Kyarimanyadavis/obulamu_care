@@ -1,7 +1,7 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:obulamucare/add_baby.dart';
+import 'package:obulamucare/add_baby_page.dart';
 import 'package:obulamucare/appointments_screen.dart';
 import 'package:obulamucare/doctors_screen.dart';
 import 'package:obulamucare/immunization_screen.dart';
@@ -100,7 +100,7 @@ class _DashboardState extends State<Dashboard> {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => const BabyScreen(),
+                            builder: (context) => const AddBabyPage(),
                           ),
                         );
                       },
